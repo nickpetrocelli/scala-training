@@ -50,4 +50,22 @@ object Recursion extends App {
     concatHelper("", n)
   }
 
+  def isPrime(n: Int): Boolean = {
+    @tailrec
+    def isPrimeHelper(isStillPrime: Boolean, m: Int): Boolean = {
+      if (!isStillPrime) false
+      else if (m <= 1) true
+      else isPrimeHelper(n % m == 0 && isStillPrime, m-1)
+    }
+    isPrimeHelper(isStillPrime = true, n/2)
+  }
+
+  def fib(n: Int): Int = {
+    @tailrec
+    def fibTailRec(i: Int, last: Int, nextLast: Int): Int = {
+      if (i >= n) last
+      else fibTailRec(i+1, last + nextLast, last)
+    }
+    fibTailRec(2, 1, 1)
+  }
 }
