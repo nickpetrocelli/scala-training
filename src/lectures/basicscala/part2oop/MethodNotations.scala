@@ -1,4 +1,4 @@
-package lectures.part2oop
+package lectures.basicscala.part2oop
 
 object MethodNotations extends App {
 

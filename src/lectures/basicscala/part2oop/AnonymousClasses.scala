@@ -1,4 +1,4 @@
-package lectures.part2oop
+package lectures.basicscala.part2oop
 
 object AnonymousClasses extends App {
 
@@ -20,7 +20,7 @@ object AnonymousClasses extends App {
 
    */
 
-  println(funnyAnimal.getClass) // class lectures.part2oop.AnonymousClasses$$anon$1
+  println(funnyAnimal.getClass) // class lectures.basicscala.part2oop.AnonymousClasses$$anon$1
 
   class Person2(name: String) {
     def sayHi: Unit = println(s"Hi, my name is $name, how can I help?")

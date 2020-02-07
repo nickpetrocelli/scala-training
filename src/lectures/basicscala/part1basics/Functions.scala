@@ -1,4 +1,4 @@
-package lectures.part1basics
+package lectures.basicscala.part1basics
 
 object Functions extends App {
 
