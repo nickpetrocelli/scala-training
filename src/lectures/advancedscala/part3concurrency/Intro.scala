@@ -162,7 +162,7 @@ object Intro extends App {
   main thread
     message = "Scala sucks"
     awesomeThread.start()
-    sleep() - reliees execution
+    sleep() - relieves execution
   awesome thread
     sleep(relieves execution
   (OS gives the CPU to some important thread - takes CPU for more than 2 seconds)
