@@ -6,11 +6,13 @@ object TypeClasses extends App {
     def toHTML: String
   }
 
-  case class User(name: String, age: Int, email: String) extends HTMLWritable {
-    override def toHTML: String = s"<div>$name ($age yo) <a href=$email/> </div>"
+  case class User(name: String, age: Int, email: String) {
+    // override def toHTML: String = s"<div>$name ($age yo) <a href=$email/> </div>"
   }
 
   val john = User("John", 32, "john@rockthejvm.com")
+  val john2 = User("John", 32, "john@rockthejvm.com")
+
 
   /*
   1 - only works for types WE write
@@ -55,28 +57,6 @@ object TypeClasses extends App {
   // HTMLSerializer is a "type class"
   // All implementers are called "type class instances"
 
-  // TYPE CLASS
-  trait MyTypeClassTemplate[T] {
-    def action(value: T): String
-  }
-
-  object MyTypeClassTemplate {
-    def apply[T](implicit instance: MyTypeClassTemplate[T]): MyTypeClassTemplate[T] = instance
-  }
-
-  /**
-   * Equality
-   */
-  trait Equal[T] {
-    def apply(t1: T, t2: T): Boolean
-  }
-  implicit object NameEquality extends Equal[User] {
-    override def apply(t1: User, t2: User): Boolean = t1.name == t2.name
-  }
-  object FullEquality extends Equal[User] {
-    override def apply(t1: User, t2: User): Boolean = t1.name == t2.name && t1.email == t2.email
-  }
-
   // PART 2
   object HTMLSerializer {
     def serialize[T](value: T)(implicit serializer: HTMLSerializer[T]): String =
@@ -84,7 +64,6 @@ object TypeClasses extends App {
 
     def apply[T](implicit serializer: HTMLSerializer[T]): HTMLSerializer[T] = serializer
   }
-
   implicit object IntSerializer extends HTMLSerializer[Int] {
     override def serialize(value: Int): String = s"<div style: color-blue>$value</div>"
   }
@@ -96,13 +75,41 @@ object TypeClasses extends App {
   // access o the entire type class interface
   println(HTMLSerializer[User].serialize(john))
 
-  /*
-  Exercise: implement the TC pattern for the Equality TC
-   */
-  object Equal {
-    def apply[T](a: T, b: T)(implicit equalizer: Equal[T]): Boolean = equalizer.apply(a, b)
+
+  // part 3
+  implicit class HTMLEnrichment[T](value: T) {
+    def toHTML(implicit serializer: HTMLSerializer[T]): String = serializer.serialize(value)
   }
 
-  val anotherJohn = User("John", 45, "anotherJohn@rtjvm.com")
-  println(Equal.apply(john, anotherJohn))
+  println(john.toHTML) // println(new HTMLEnrichment[User](john).toHTML(UserSerializer))
+
+  /*
+  - extend to new types
+  - choose implementation
+  - super expressive
+   */
+  println(2.toHTML)
+  println(john.toHTML(PartialUserSerializer))
+
+  /*
+  - type class itself, with functionality you want to expose -- HTMLSerializer[T]
+  - type class instances (some of which are implicit) --- UserSerializer, IntSerializer
+  - conversion with implicit classes --- HTMLEnrichment
+   */
+
+  // context bounds
+  def htmlBoilerplate[T](content: T)(implicit serializer: HTMLSerializer[T]): String =
+    s"<html><body> ${content.toHTML(serializer)}</body></html>"
+
+  def htmlSugar[T : HTMLSerializer](content: T): String = { // context bound tells compiler to inject the serializer
+    val serializer = implicitly[HTMLSerializer[T]]
+    s"<html><body> ${content.toHTML}</body></html>"
+  }
+
+  // implicitly
+  case class Permissions(mask: String)
+  implicit val defaultPermissions: Permissions = Permissions("0744")
+
+  // in some other part of the code, extract what implicit value is
+  val standardPerms = implicitly[Permissions]
 }
